@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -40,6 +41,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/cart', [CartController::class, 'viewCart'])->name('cart');
 
+    Route::get('/cart', [CheckoutController::class, 'showCart'])->name('cart.show');
+    Route::post('/checkout', [CheckoutController::class, 'checkout'])->name('checkout.process');
 });
 
 require __DIR__.'/auth.php';

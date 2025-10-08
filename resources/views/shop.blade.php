@@ -229,7 +229,7 @@
                                 </div>
                             </div>
                             <div class="col-lg-9" id="app">
-                                <h1>توكن المستخدم: {{ session('sanctum_token') }}</h1>
+                                {{-- <h1>توكن المستخدم: {{ session('sanctum_token') }}</h1> --}}
 
                                 <div class="row g-4 justify-content-center"> 
                                     {{-- here --}}
