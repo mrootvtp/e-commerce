@@ -14,6 +14,7 @@ class ShopController extends Controller
         $products = Product::paginate(9);
 
         return view('shop', compact('products'));
+        
         }
 
 }

@@ -20,24 +20,29 @@
                     </button>
                     <div class="collapse navbar-collapse bg-white" id="navbarCollapse">
                         <div class="navbar-nav mx-auto">
-                          <a href="{{ route('home') }}" 
+                          {{-- <a href="{{ route('home') }}" 
                             class="nav-item nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
                             Home
-                            </a>
+                            </a> --}}
 
                             <a href="{{ route('shop') }}" 
                             class="nav-item nav-link {{ request()->routeIs('shop') ? 'active' : '' }}">
                             Shop
                             </a>
-                                    <a href="shop-detail.html" class="nav-item nav-link">Shop Detail</a>
-                            <div class="nav-item dropdown">
+
+                             <a href="{{route('cart')}}" 
+                            class="nav-item nav-link {{ request()->routeIs('cart') ? 'active' : '' }}">
+                            cart
+                            </a>
+                                    {{-- <a href="shop-detail.html" class="nav-item nav-link">Shop Detail</a> --}}
+                            {{-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                 <div class="dropdown-menu m-0 bg-secondary rounded-0">
                                     <a href="{{route('cart')}}" class="dropdown-item">Cart</a>
-                                    <a href="chackout.html" class="dropdown-item">Chackout</a>
+                                    <a href="{{route('checkout')}}" class="dropdown-item">Chackout</a>
                                     <a href="testimonial.html" class="dropdown-item">Testimonial</a>
                                     <a href="404.html" class="dropdown-item">404 Page</a>
-                                </div>
+                                </div> --}}
                             </div>
                             <a href="contact.html" class="nav-item nav-link">Contact</a>
                         </div>
@@ -55,3 +60,78 @@
                 </nav>
             </div>
         </div>
+
+
+ <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchModal = document.getElementById('searchModal');
+
+
+    searchModal?.addEventListener('shown.bs.modal', () => {
+        const input = searchModal.querySelector('input[type="search"]');
+        if (!input) return;
+
+    
+        const parent = input.parentElement;
+        parent.style.position = 'relative';
+
+        // إنشاء قائمة النتائج
+        let resultsBox = document.createElement('ul');
+        resultsBox.id = 'searchResults';
+        resultsBox.className = 'list-group position-absolute bg-white shadow border rounded w-100 mt-1';
+        resultsBox.style.top = '100%';
+        resultsBox.style.left = '0';
+        resultsBox.style.zIndex = '1056';
+        resultsBox.style.display = 'none';
+        resultsBox.style.maxHeight = '250px';
+        resultsBox.style.overflowY = 'auto';
+        parent.appendChild(resultsBox);
+
+      
+        input.addEventListener('keyup', async () => {
+            const query = input.value.trim();
+            if (query.length < 2) {
+                resultsBox.style.display = 'none';
+                resultsBox.innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await axios.get(`/api/search`, {
+                    params: { query }
+                });
+                const products = response.data;
+
+               
+                if (products.length > 0) {
+                    resultsBox.innerHTML = products.map(p => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${p.name}</strong><br>
+                                <small class="text-muted">$${p.price}</small>
+                            </div>
+                            <a href="/product" class="btn btn-sm btn-outline-primary">View</a>
+                        </li>
+                    `).join('');
+                    resultsBox.style.display = 'block';
+                } else {
+                    resultsBox.innerHTML = `<li class="list-group-item text-muted">No results found</li>`;
+                    resultsBox.style.display = 'block';
+                }
+
+            } catch (err) {
+                console.error(err);
+                resultsBox.innerHTML = `<li class="list-group-item text-danger">Error fetching results</li>`;
+                resultsBox.style.display = 'block';
+            }
+        });
+
+        
+        document.addEventListener('click', e => {
+            if (!parent.contains(e.target)) {
+                resultsBox.style.display = 'none';
+            }
+        });
+    });
+});
+</script>

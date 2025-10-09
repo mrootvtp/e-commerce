@@ -9,6 +9,8 @@ use App\Services\PaymentGateway;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use App\Models\Order;
+use App\Models\Cart;
+use App\Models\CartItems;
 
 class OrderController extends Controller
 {
@@ -21,7 +23,7 @@ class OrderController extends Controller
         $this->gateway = $gateway;
     }
 
-    // POST /api/order
+   
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -48,7 +50,7 @@ class OrderController extends Controller
         }
     }
 
-    // POST /api/payment
+   
     public function pay(Request $request): JsonResponse
     {
         $request->validate([
@@ -58,22 +60,29 @@ class OrderController extends Controller
 
         $order = Order::findOrFail($request->order_id);
 
-        // Optional: check ownership
+        
         if (Auth::check() && $order->user_id && Auth::id() !== $order->user_id) {
             return response()->json(['message' => 'You cannot pay this order'], 403);
         }
 
-        // Process payment via bound gateway
+       
         $result = $this->gateway->processPayment($order);
 
         if ($result['success']) {
             $order->update([
-                'status' => 'paid',
+                'status' => 'completed',
                 'payment_reference' => $result['transaction_id'] ?? null,
                 'paid_at' => now(),
             ]);
 
+             $clearCart = Cart::where('user_id', $order->user_id)->first();
+             if ($clearCart) {
+                 CartItems::where('cart_id', $clearCart->id)->delete();
+             }
+
             return response()->json(['message' => 'Payment successful', 'order' => $order]);
+
+           
         }
 
         $order->update(['status' => 'canceled']);

@@ -60,14 +60,17 @@ class CartController extends Controller
         $cart = Cart::where('user_id', $user->id)->first();
 
         if (!$cart) {
-            return view('cart', ['items' => []]);
-        }
+        return view('cart', ['items' => [], 'cart' => null, 'total' => 0]);
+    }
+
 
         $cartItems = CartItems::where('cart_id', $cart->id)
                               ->with('product')
                               ->get();
 
-        return view('cart', ['items' => $cartItems]);
+        $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+
+        return view('cart', ['items' => $cartItems, 'total' => $total,]);
     }   
 
 }

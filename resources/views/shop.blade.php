@@ -425,7 +425,7 @@
                try {
                 const token = window.SANCTUM_TOKEN;
 
-                const response = await axios.post('/api/add-to-cart', 
+                const response = await axios.post('/add-to-cart', 
                     { product_id: productId },
                     {
                         headers: {

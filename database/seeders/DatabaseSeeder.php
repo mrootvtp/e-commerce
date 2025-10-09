@@ -21,12 +21,15 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            CountrySeeder::class,
-            WarehouseSeeder::class,
-            ProductSeeder::class,
-            OrderSeeder::class,
-            UserSeeder::class,
-            InventorySeeder::class,
+              UserSeeder::class,
+              ProductSeeder::class,
+              CountrySeeder::class,
+              WarehouseSeeder::class,
+              InventorySeeder::class,
+              
+              
+        
+           
 
         ]);
 

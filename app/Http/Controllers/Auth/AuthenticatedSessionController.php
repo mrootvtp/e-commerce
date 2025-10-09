@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
         
         $request->session()->put('sanctum_token', $token);
 
-        return redirect()->intended(route('home'))->with('token', $token);
+        return redirect()->intended(route('shop'))->with('token', $token);
 
         
     }

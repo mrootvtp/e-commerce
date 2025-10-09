@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ProductController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,9 +20,6 @@ Route::get('/', function () {
 Route::get('/home', function () {
     return view('index');
 })->middleware(['auth', 'verified'])->name('home');
-
-
-
 
 
 Route::middleware('auth')->group(function () {
@@ -39,10 +37,18 @@ Route::middleware('auth')->group(function () {
                 })->name('home');
 
 
+                
+    Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('add.to.cart');
+
     Route::get('/cart', [CartController::class, 'viewCart'])->name('cart');
 
-    Route::get('/cart', [CheckoutController::class, 'showCart'])->name('cart.show');
-    Route::post('/checkout', [CheckoutController::class, 'checkout'])->name('checkout.process');
+    Route::get('/checkout', [CheckoutController::class, 'showCheckout'])->name('checkout');
+
+    Route::get('/search-products', [ProductController::class, 'search'])->name('search.products');
+
+    Route::get('/product', [ProductController::class, 'show'])->name('product.show');
+
+
 });
 
 require __DIR__.'/auth.php';

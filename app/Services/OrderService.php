@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Inventory;
 use App\Models\Inventory_transaction;
+use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -42,14 +43,15 @@ class OrderService
                     'price' => $price,
                 ]);
 
-                // إدارة المخزون إن وجد
+                $productName = Product::where('id', $productId)->value('name');
+                
                 $inventory = Inventory::where('product_id', $productId)
                                       ->when($warehouseId, fn($q) => $q->where('warehouse_id', $warehouseId))
                                       ->lockForUpdate()
                                       ->first();
 
                 if (!$inventory) {
-                    throw new Exception("Inventory for product {$productId} not found.");
+                    throw new Exception("Inventory for product {$productName} not found.");
                 }
 
                 if ($inventory->quantity < $qty) {

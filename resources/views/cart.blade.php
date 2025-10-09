@@ -71,11 +71,13 @@
                         </thead>
                         <tbody>
 
+                         @if(isset($items) && count($items) > 0)
+
                             @foreach ($items as $item)
                             
                             
 
-                            <tr>
+                            <tr data-product-id="{{ $item->product->id }}">
                                 <th scope="row">
                                     <div class="d-flex align-items-center">
                                         <img src="img/vegetable-item-3.png" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
@@ -107,12 +109,13 @@
                                 </td>
                                 <td>
                                     <button class="btn btn-md rounded-circle bg-light border mt-4" >
-                                        <i class="fa fa-times text-danger"></i>
+                                        <i class="fa fa-times text-danger deleteItem"></i>
                                     </button>
                                 </td>
                             
                             </tr>
                            @endforeach
+                           @endif
                         </tbody>
                     </table>
                 </div>
@@ -124,7 +127,7 @@
                     <div class="col-8"></div>
                     <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
                         <div class="bg-light rounded">
-                            <div class="p-4">
+                            {{-- <div class="p-4">
                                 <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
                                 <div class="d-flex justify-content-between mb-4">
                                     <h5 class="mb-0 me-4">Subtotal:</h5>
@@ -137,12 +140,12 @@
                                     </div>
                                 </div>
                                 <p class="mb-0 text-end">Shipping to Ukraine.</p>
-                            </div>
+                            </div> --}}
                             <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
                                 <h5 class="mb-0 ps-4 me-4">Total</h5>
-                                <p class="mb-0 pe-4">$99.00</p>
+                                <p class="mb-0 pe-4">{{$total}}</p>
                             </div>
-                            <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed Checkout</button>
+                            <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button" id='checkoutBtn'>Proceed Checkout</button>
                         </div>
                     </div>
                 </div>
@@ -259,46 +262,95 @@
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
 
-{{-- <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const rows = document.querySelectorAll('table tbody tr');
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
 
-    rows.forEach(row => {
-        const minusBtn = row.querySelector('.btn-minus');
-        const plusBtn = row.querySelector('.btn-plus');
-        const qtyInput = row.querySelector('input[type="text"]');
-        const priceEl = row.querySelector('td:nth-child(3) p'); // العمود الثالث: Price
-        const totalEl = row.querySelector('td:nth-child(5) p'); // العمود الخامس: Total
+ window.SANCTUM_TOKEN = "{{ session('sanctum_token') }}";
 
-        const price = parseFloat(priceEl.textContent);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${window.SANCTUM_TOKEN}`;
+    axios.defaults.headers.common['Accept'] = 'application/json';
 
-        const updateTotal = () => {
-            let qty = parseInt(qtyInput.value, 10);
-            if (isNaN(qty) || qty < 1) qty = 1;
-            qtyInput.value = qty;
-            totalEl.textContent = (price * qty).toFixed(2);
-        };
+document.getElementById('checkoutBtn').addEventListener('click', async function() {
+    try {
+        
+        const items = @json($items->map(function($item) {
+            return [
+                'product_id' => $item->product->id,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price
+            ];
+        })->values());
 
-        minusBtn.addEventListener('click', () => {
-            let qty = parseInt(qtyInput.value, 10) || 1;
-            qty = Math.max(qty - 1, 1); // لا تقل عن 1
-            qtyInput.value = qty;
-            updateTotal();
-        });
+        if (!confirm('Are you sure you want to proceed to checkout?')) return;
 
-        plusBtn.addEventListener('click', () => {
-            let qty = parseInt(qtyInput.value, 10) || 1;
-            qtyInput.value = qty + 1;
-            updateTotal();
-        });
+      
 
-        qtyInput.addEventListener('input', updateTotal);
+           const token = window.SANCTUM_TOKEN;
+           const response = await axios.post('/api/order', 
+                    { 
+                         items: items,
+                        warehouse_id: 1
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: 'application/json'
+                        }
+                    }
+                );
 
-        // حساب أولي عند التحميل
-        updateTotal();
+
+        alert('✅ Order created successfully! ID: ' + response.data.order_id);
+
+        // window.location.href = '/checkout' + response.data.order_id;
+        window.location.href = '/checkout';
+
+    } catch (error) {
+        console.error(error);
+        if (error.response) {
+            alert('❌ Failed: ' + error.response.data.message + ' '+ error.response.data.error);
+        } else {
+            alert('❌ Network error');
+        }
+    }
+});
+
+
+// remove item from Cart
+
+document.querySelectorAll('.deleteItem').forEach(button => {
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to remove this item from cart?')) return;
+
+       
+        const row = this.closest('tr');
+        
+        const productId = row.dataset.productId ?? '';
+
+        try {
+            const response = await axios.delete(`/api/cart/item/${productId}`);
+            alert(response.data.message || 'Item removed successfully!');
+
+          
+            row.remove();
+
+        } catch (error) {
+            console.error(error);
+            if (error.response) {
+                alert('❌ Failed: ' + error.response.data.message);
+            } else {
+                alert('❌ Network error');
+            }
+        }
     });
-}); --}}
-{{-- </script> --}}
+});
+
+//end remove item from Cart
+
+
+</script>
 
 
 
