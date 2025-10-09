@@ -7,8 +7,12 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 

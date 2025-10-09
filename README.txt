@@ -65,3 +65,6 @@ php artisan migrate --seed
 php artisan serve
 
 Access via http://localhost:8000
+
+email = mohammed@gmail.com
+pass  = password
