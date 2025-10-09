@@ -9,7 +9,7 @@ A mini e-commerce web application built with **Laravel (Backend)** and **Vue.js/
 - **Backend:** Laravel 10, MySQL, Eloquent ORM, Repository & Service Pattern
 - **Frontend:** Blade, Vue.js (optional), Bootstrap 5
 - **HTTP Client:** Axios for API calls
-- **Other:** Faker for seeding, Laravel Sanctum for authentication (optional)
+- **Other:** Faker for seeding, Laravel Sanctum for authentication
 
 ---
 
