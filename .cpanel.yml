@@ -1,0 +1,4 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/mohazhnh/repositories/e-commerce 
+    - /bin/rsync -av --exclude '.git' . $DEPLOYPATH
